@@ -69,7 +69,7 @@ resource "aws_security_group" "allow_all" {
 }
 
 resource "aws_instance" "machine" {
-  ami                    = length(regexall(".*g.*large", local.instance_types_list[0])) == 0 ? data.aws_ami.nixos_ami_x86_64.id : data.aws_ami.nixos_ami_aarch64.id
+  ami                    = length(regexall(".*g\\..*", local.instance_types_list[0])) == 0 ? data.aws_ami.nixos_ami_x86_64.id : data.aws_ami.nixos_ami_aarch64.id
   key_name               = aws_key_pair.generated_key.key_name
   instance_type          = local.instance_type
   vpc_security_group_ids = [aws_security_group.allow_all.id]
