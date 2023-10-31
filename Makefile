@@ -1,23 +1,33 @@
 run: conn
 
-.PHONY: launch build conn del
+ami:
+	aws ec2 describe-images \
+		--region ap-southeast-2 \
+		--filters Name=owner-id,Values=080433136561 \
+		| jq '.Images | map(select(.Architecture == "arm64")) | sort_by(.CreationDate) | reverse | map({ ImageId, Description }) | .[0]'
 
 launch:
 	terraform init
 	terraform apply
 
-build:
-	$(eval INSTANCE_IP := $(shell terraform output -json | jq -r '.instance_ip.value'))
-	terraform output -json | jq -r '.private_key.value' > edkey
-	chmod 600 edkey
-	scp -i edkey -o StrictHostKeyChecking=no -r configuration.nix root@$(INSTANCE_IP):/etc/nixos/
-	ssh -i edkey -o StrictHostKeyChecking=no root@$(INSTANCE_IP) "nixos-rebuild switch"
-	scp -i ~/.ssh/edkey -o StrictHostKeyChecking=no -r ~/.ssh/id_rsa $(INSTANCE_IP):~/.ssh
+host:
+	$(eval INSTANCE_IP := $(shell terraform output -json | jq -r '.instance_ipv6.value'))
 	sudo sed -i "" "s/.*\ dev/$(INSTANCE_IP)\ dev/g" /etc/hosts  # I'm MacOS, maybe you need change this
 
+host6:
+	$(eval INSTANCE_IP := $(shell terraform output -json | jq -r '.instance_ipv6.value'))
+	sudo sed -i "" "s/.*\ dev/$(INSTANCE_IP)\ dev/g" /etc/hosts  # I'm MacOS, maybe you need change this
+
+build:
+	terraform output -json | jq -r '.private_key.value' > edkey
+	chmod 600 edkey
+	scp -i edkey -o StrictHostKeyChecking=no -r configuration.nix root@dev:/etc/nixos/
+	ssh -i edkey -o StrictHostKeyChecking=no root@dev "nixos-rebuild switch"
+	ssh -o StrictHostKeyChecking=no dev "mkdir -p ~/.ssh && touch ~/.zshrc"
+	scp -o StrictHostKeyChecking=no -r ~/.ssh/id_rsa dev:~/.ssh/id_rsa
+
 conn:
-	$(eval INSTANCE_IP := $(shell terraform output -json | jq -r '.instance_ip.value'))
-	ssh -i ~/.ssh/edkey -o StrictHostKeyChecking=no $(INSTANCE_IP)
+	ssh -o StrictHostKeyChecking=no dev
 
 del:
 	terraform destroy
