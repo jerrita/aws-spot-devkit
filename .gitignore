@@ -2,3 +2,5 @@
 .vscode/
 *.tfstate
 *.backup
+edkey
+

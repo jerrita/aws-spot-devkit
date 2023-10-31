@@ -2,6 +2,8 @@
     imports = [ <nixpkgs/nixos/modules/virtualisation/amazon-image.nix> ];
     ec2.efi = true;
 
+    networking.hostName = "devkit";
+
     environment.systemPackages = with pkgs; [
         vim
         wget
@@ -26,24 +28,16 @@
     programs.zsh = {
         enable = true;
         syntaxHighlighting.enable = true;
-        enableAutosuggestions = true;
+        autosuggestions.enable = true;
         enableCompletion = true;
+        ohMyZsh = {
+            enable = true;
+            theme = "sonicradish";
+            plugins = [ "git" ];
+        };
         shellAliases = {
             k = "kubectl";
             update = "sudo nixos-rebuild switch";
-        };
-
-        zplug = {
-            enable = true;
-            plugins = [
-                { name = "zsh-users/zsh-autosuggestions"; }
-            ];
-        };
-
-        oh-my-zsh = {
-            enable = true;
-            plugins = [ "git" ];
-            theme = "sonicradish";
         };
     };
     programs.command-not-found.enable = true;
