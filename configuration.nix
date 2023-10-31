@@ -1,9 +1,7 @@
 { config, lib, pkgs, ... }: {
     imports = [ <nixpkgs/nixos/modules/virtualisation/amazon-image.nix> ];
-    ec2.efi = true;
 
     networking.hostName = "devkit";
-
     environment.systemPackages = with pkgs; [
         vim
         wget

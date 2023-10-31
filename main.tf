@@ -4,9 +4,8 @@ provider "aws" {
 }
 
 locals {
-  # Sinapore: c7g
   region              = "ap-southeast-1"
-  instance_type       = "c7g.xlarge"
+  instance_type       = "c6i.large"
   instance_types_list = [local.instance_type]
 }
 
@@ -15,7 +14,6 @@ module "ec2_spot_price" {
   version                       = "2.0.0"
   instance_types_list           = local.instance_types_list
   availability_zones_names_list = data.aws_availability_zones.available.names
-  custom_price_modifier         = 1.1
 }
 
 resource "tls_private_key" "state_ssh_key" {
@@ -71,7 +69,7 @@ resource "aws_security_group" "allow_all" {
 }
 
 resource "aws_instance" "machine" {
-  ami                    = regex("g", local.instance_types_list[0]) != null ? data.aws_ami.nixos_ami_aarch64.id : data.aws_ami.nixos_ami_x86_64.id
+  ami                    = length(regexall(".*g.*large", local.instance_types_list[0])) == 0 ? data.aws_ami.nixos_ami_x86_64.id : data.aws_ami.nixos_ami_aarch64.id
   key_name               = aws_key_pair.generated_key.key_name
   instance_type          = local.instance_type
   vpc_security_group_ids = [aws_security_group.allow_all.id]
@@ -84,7 +82,7 @@ resource "aws_instance" "machine" {
 
   instance_market_options {
     spot_options {
-      max_price                      = module.ec2_spot_price.spot_price_current_min_mod
+      max_price                      = module.ec2_spot_price.spot_price_current_optimal
       spot_instance_type             = "persistent"
       instance_interruption_behavior = "stop"
     }
