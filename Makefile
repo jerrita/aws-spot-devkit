@@ -13,7 +13,7 @@ build:
 	scp -i edkey -o StrictHostKeyChecking=no -r configuration.nix root@$(INSTANCE_IP):/etc/nixos/
 	ssh -i edkey -o StrictHostKeyChecking=no root@$(INSTANCE_IP) "nixos-rebuild switch"
 	scp -i ~/.ssh/edkey -o StrictHostKeyChecking=no -r ~/.ssh/id_rsa $(INSTANCE_IP):~/.ssh
-	sudo sed -i "s/.* dev/$(INSTANCE_IP) dev/g" /etc/hosts
+	sudo sed -i "" "s/.*\ dev/$(INSTANCE_IP)\ dev/g" /etc/hosts  # I'm MacOS, maybe you need change this
 
 conn:
 	$(eval INSTANCE_IP := $(shell terraform output -json | jq -r '.instance_ip.value'))
