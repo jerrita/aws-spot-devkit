@@ -5,7 +5,7 @@ provider "aws" {
 
 locals {
   region              = "ap-southeast-1"
-  instance_type       = "c6i.large"
+  instance_type       = "c6g.4xlarge"
   instance_types_list = [local.instance_type]
 }
 
@@ -76,8 +76,8 @@ resource "aws_instance" "machine" {
   ipv6_address_count     = 1
 
   root_block_device {
-    volume_size = 8
-    volume_type = "gp2"
+    volume_size = 20
+    volume_type = "gp3"
   }
 
   instance_market_options {

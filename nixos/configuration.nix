@@ -1,9 +1,16 @@
 { config, lib, pkgs, ... }: {
-    imports = [ <nixpkgs/nixos/modules/virtualisation/amazon-image.nix> ];
+    imports = [ 
+        <nixpkgs/nixos/modules/virtualisation/amazon-image.nix>
+        ./cachix.nix
+        ./env.nix
+    ];
+
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
     networking.hostName = "devkit";
     environment.systemPackages = with pkgs; [
-        vim
+        tmux
+        neovim
         wget
         git
 
@@ -14,11 +21,19 @@
         tree
         iproute2
 
-        gcc13
-        cmake
-        gnumake
-        gdb
+        cachix
+        jq
     ];
+
+    services.resolved.enable = false;
+    networking.resolvconf.enable = false;
+    environment.etc."resolv.conf".text = "nameserver 8.8.8.8\nnameserver 1.1.1.1\n";
+
+    programs.neovim = {
+        enable = true;
+        defaultEditor = true;
+        vimAlias = true;
+    };
 
     security.sudo.wheelNeedsPassword = false;
     services.openssh.enable = true;
@@ -33,12 +48,7 @@
             theme = "sonicradish";
             plugins = [ "git" ];
         };
-        shellAliases = {
-            k = "kubectl";
-            update = "sudo nixos-rebuild switch";
-        };
     };
-    programs.command-not-found.enable = true;
     
     users.users.jerrita = {
         isNormalUser = true;

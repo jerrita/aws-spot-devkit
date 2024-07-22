@@ -1,6 +1,5 @@
-.terraform/
+**/.terraform/
 .vscode/
-*.tfstate
-*.backup
-edkey
-
+**/*.tfstate*
+**/edkey
+nixos/env.nix
