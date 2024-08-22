@@ -7,12 +7,12 @@ launch:
 host:
 	ssh-keygen -R dev
 	$(eval INSTANCE_IP := $(shell terraform output -json | jq -r '.instance_ip.value'))
-	sudo sed -i "" "s/.*\ dev/$(INSTANCE_IP)\ dev/g" /etc/hosts
+	sudo sed -i  "s/.*\ dev/$(INSTANCE_IP)\ dev/g" /etc/hosts
 
 host6:
 	ssh-keygen -R dev
 	$(eval INSTANCE_IP := $(shell terraform output -json | jq -r '.instance_ipv6.value'))
-	sudo sed -i "" "s/.*\ dev/$(INSTANCE_IP)\ dev/g" /etc/hosts 
+	sudo sed -i  "s/.*\ dev/$(INSTANCE_IP)\ dev/g" /etc/hosts 
 
 build:
 	terraform output -json | jq -r '.private_key.value' > edkey
